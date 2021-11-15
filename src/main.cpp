@@ -87,6 +87,11 @@ void change_enable_parameter(int8_t delta) {
   }
   pwm_enable_set_frequency(enable_frequency);
   pwm_enable_set_duty_cycle(enable_duty_cycle);
+
+  Serial.print("Enable freq: ");
+  Serial.print(enable_frequency, 0);
+  Serial.print(", Duty cycle: ");
+  Serial.println(enable_duty_cycle, 1);
 }
 
 void change_enable_setting_mode() {
@@ -137,6 +142,8 @@ void change_output_parameter(int8_t delta) {
     break;
   }
   AD.setFrequency(MD_AD9833::CHAN_0, output_frequency);
+  Serial.print("Output freq: ");
+  Serial.println(output_frequency);
 }
 
 void change_output_setting_mode() {
