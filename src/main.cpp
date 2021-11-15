@@ -75,6 +75,8 @@ void change_enable_parameter(int8_t delta) {
   default:
     break;
   }
+  pwm_enable_set_frequency(enable_frequency);
+  pwm_enable_set_duty_cycle(enable_duty_cycle);
 }
 
 void change_enable_setting_mode() {
