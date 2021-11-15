@@ -8,14 +8,15 @@
 #define ENABLE_FREQUENCY_INCREMENT_COARSE 100
 #define ENABLE_FREQUENCY_INCREMENT_FINE 10
 
-#define ENABLE_DUTY_CYCLE_MIN 1
-#define ENABLE_DUTY_CYCLE_MAX 100
-#define ENABLE_DUTY_CYCLE_INCREMENT 1
+#define ENABLE_DUTY_CYCLE_MIN 0.1
+#define ENABLE_DUTY_CYCLE_MAX 99.9
+#define ENABLE_DUTY_CYCLE_INCREMENT_COARSE 0.1
+#define ENABLE_DUTY_CYCLE_INCREMENT_FINE 5
 
 int16_t enable_frequency = 100;
-int8_t enable_duty_cycle = 50;
-enum Enable_setting_states {ES_COARSE, ES_FINE, ES_DUTY_CYCLE, ES_NUMBER_STATES};
-Enable_setting_states enable_setting_state = ES_FINE;
+float enable_duty_cycle = 50;
+enum Enable_setting_states {ES_FREQUENCY_COARSE, ES_FREQUENCY_FINE, ES_DUTY_CYCLE_COARSE, ES_DUTY_CYCLE_FINE};
+Enable_setting_states enable_setting_state = ES_FREQUENCY_FINE;
 
 
 void change_enable_parameter(int8_t delta);
@@ -41,17 +42,22 @@ void loop() {
 void change_enable_parameter(int8_t delta) {
   switch (enable_setting_state)
   {
-  case ES_COARSE:
+  case ES_FREQUENCY_COARSE:
     enable_frequency += delta * ENABLE_FREQUENCY_INCREMENT_COARSE;
     enable_frequency = min(ENABLE_FREQUENCY_MIN, max(ENABLE_FREQUENCY_MAX, enable_frequency));
     break;
-  case ES_FINE:
+  case ES_FREQUENCY_FINE:
     enable_frequency += delta * ENABLE_FREQUENCY_INCREMENT_FINE;
     enable_frequency = min(ENABLE_FREQUENCY_MIN, max(ENABLE_FREQUENCY_MAX, enable_frequency));
     break;
-  case ES_DUTY_CYCLE:
-    enable_duty_cycle += delta * ENABLE_DUTY_CYCLE_INCREMENT;
+  case ES_DUTY_CYCLE_COARSE:
+    enable_duty_cycle += delta * ENABLE_DUTY_CYCLE_INCREMENT_COARSE;
     enable_duty_cycle = min(ENABLE_DUTY_CYCLE_MIN, max(ENABLE_DUTY_CYCLE_MAX, enable_duty_cycle));
+    break;
+  case ES_DUTY_CYCLE_FINE:
+    enable_duty_cycle += delta * ENABLE_DUTY_CYCLE_INCREMENT_FINE;
+    enable_duty_cycle = min(ENABLE_DUTY_CYCLE_MIN, max(ENABLE_DUTY_CYCLE_MAX, enable_duty_cycle));
+    break;
   default:
     break;
   }
@@ -60,14 +66,18 @@ void change_enable_parameter(int8_t delta) {
 void change_enable_setting_mode() {
   switch (enable_setting_state)
   {
-  case ES_COARSE:
-    enable_setting_state = ES_FINE;
+  case ES_FREQUENCY_COARSE:
+    enable_setting_state = ES_FREQUENCY_FINE;
     break;
-  case ES_FINE:
-    enable_setting_state = ES_DUTY_CYCLE;
+  case ES_FREQUENCY_FINE:
+    enable_setting_state = ES_DUTY_CYCLE_COARSE;
     break;
-  case ES_DUTY_CYCLE:
-    enable_setting_state = ES_COARSE;
+  case ES_DUTY_CYCLE_COARSE:
+    enable_setting_state = ES_DUTY_CYCLE_FINE;
+    break;
+  case ES_DUTY_CYCLE_FINE:
+    enable_setting_state = ES_FREQUENCY_COARSE;
+    break;
   default:
     break;
   }
