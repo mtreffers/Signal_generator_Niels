@@ -4,6 +4,7 @@
 #include "pinout.h"
 #include <MD_AD9833.h>
 #include <SPI.h>
+#include "Led.h"
 
 #define ENABLE_FREQUENCY_MIN 50
 #define ENABLE_FREQUENCY_MAX 10000
@@ -41,6 +42,9 @@ Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B, PIN_ENCODER_E
 Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B, PIN_ENCODER_FREQUENCY_PRESS, change_output_parameter, change_output_setting_mode);
 
 MD_AD9833 AD(PIN_AD9833_FSYNC);
+Led output_led(PIN_LED_FREQUENCY);
+Led enable_led(PIN_LED_ENABLE);
+Led debug_led(PIN_LED_DEBUG);
 
 void setup() {
   // put your setup code here, to run once:
@@ -50,13 +54,16 @@ void setup() {
   pwm_enable_init();
   AD.begin();
   AD.setMode(MD_AD9833::MODE_SQUARE1);
+  debug_led.set_mode(Led::BLINK_SLOW);
 }
 
 void loop() {
-  
-
   encoder_enable.tick();
   encoder_output.tick();
+
+  output_led.tick();
+  enable_led.tick();
+  debug_led.tick();
 }
 
 void change_enable_parameter(int8_t delta) {
@@ -90,15 +97,19 @@ void change_enable_setting_mode() {
   {
   case ES_FREQUENCY_COARSE:
     enable_setting_state = ES_FREQUENCY_FINE;
+    enable_led.set_mode(Led::OFF);
     break;
   case ES_FREQUENCY_FINE:
     enable_setting_state = ES_DUTY_CYCLE_COARSE;
+    enable_led.set_mode(Led::ON);
     break;
   case ES_DUTY_CYCLE_COARSE:
     enable_setting_state = ES_DUTY_CYCLE_FINE;
+    enable_led.set_mode(Led::BLINK_SLOW);
     break;
   case ES_DUTY_CYCLE_FINE:
     enable_setting_state = ES_FREQUENCY_COARSE;
+    enable_led.set_mode(Led::BLINK_FAST);
     break;
   default:
     break;
@@ -136,15 +147,19 @@ void change_output_setting_mode() {
   {
   case OUT_FREQUENCY_SMALL:
     output_setting_state = OUT_FREQUENCY_FINE;
+    output_led.set_mode(Led::ON);
     break;
   case OUT_FREQUENCY_FINE:
     output_setting_state = OUT_FREQUENCY_COARSE;
+    output_led.set_mode(Led::BLINK_FAST);
     break;
   case OUT_FREQUENCY_COARSE:
     output_setting_state = OUT_FREQUENCY_LARGE;
+    output_led.set_mode(Led::BLINK_SLOW);
     break;
   case OUT_FREQUENCY_LARGE:
     output_setting_state = OUT_FREQUENCY_SMALL;
+    output_led.set_mode(Led::OFF);
     break;
   default:
     break;
