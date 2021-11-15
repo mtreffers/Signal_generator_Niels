@@ -10,9 +10,9 @@ freq_resolution = 1;
 
 desired_freq = freq_start:freq_resolution:freq_end;
 
-duty_cycle_start = 10;
-duty_cycle_end = 60;
-duty_cycle_resolution = 10;
+duty_cycle_start = 0.1;
+duty_cycle_end = 99.9;
+duty_cycle_resolution = 0.1;
 duty_cycles = duty_cycle_start:duty_cycle_resolution:duty_cycle_end;
 
 counts = (1:2^timer_resolution)';
@@ -86,7 +86,3 @@ s.EdgeColor = 'none';
 xlabel('Frequency');
 ylabel('Desired duty cycle');
 zlabel('Error');
-
-%% Publish dingen
-matlab.io.saveVariablesToScript('myVars.m', 'prescalers')
-publish('myVars.m', 'pdf')
