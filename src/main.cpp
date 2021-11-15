@@ -2,6 +2,8 @@
 #include "pwm.h"
 #include "Encoder.h"
 #include "pinout.h"
+#include <MD_AD9833.h>
+#include <SPI.h>
 
 #define ENABLE_FREQUENCY_MIN 50
 #define ENABLE_FREQUENCY_MAX 10000
@@ -25,7 +27,7 @@ float enable_duty_cycle = ENABLE_DUTY_CYCLE_MIN;
 enum Enable_setting_states {ES_FREQUENCY_COARSE, ES_FREQUENCY_FINE, ES_DUTY_CYCLE_COARSE, ES_DUTY_CYCLE_FINE};
 Enable_setting_states enable_setting_state = ES_FREQUENCY_FINE;
 
-int32_t output_frequency = OUTPUT_FREQUENCY_MIN;
+float output_frequency = OUTPUT_FREQUENCY_MIN;
 enum Output_setting_states {OUT_FREQUENCY_SMALL, OUT_FREQUENCY_FINE, OUT_FREQUENCY_COARSE, OUT_FREQUENCY_LARGE};
 Output_setting_states output_setting_state = OUT_FREQUENCY_FINE;
 
@@ -38,12 +40,16 @@ void change_output_setting_mode();
 Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B, PIN_ENCODER_ENABLE_PRESS, change_enable_parameter, change_enable_setting_mode);
 Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B, PIN_ENCODER_FREQUENCY_PRESS, change_output_parameter, change_output_setting_mode);
 
+MD_AD9833 AD(PIN_AD9833_FSYNC);
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.println("Start...");
 
   pwm_enable_init();
+  AD.begin();
+  AD.setMode(MD_AD9833::MODE_SQUARE1);
 }
 
 void loop() {
@@ -122,6 +128,7 @@ void change_output_parameter(int8_t delta) {
   default:
     break;
   }
+  AD.setFrequency(MD_AD9833::CHAN_0, output_frequency);
 }
 
 void change_output_setting_mode() {
