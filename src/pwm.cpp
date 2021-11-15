@@ -29,9 +29,9 @@ void _pwm_enable_set_frequency(uint16_t frequency) {
     OCR1A = CLK_FREQ / (m_prescaler * m_frequency);
 }
 
-void _pwm_enable_set_duty_cycle(uint8_t duty_cycle) {
+void _pwm_enable_set_duty_cycle(float duty_cycle) {
     m_duty_cycle = duty_cycle;
-    OCR1B = OCR1A * duty_cycle / 100;
+    OCR1B = ((uint16_t)(OCR1A * duty_cycle)) / 100;
 }
 
 void _pwm_enable_stop() {
@@ -69,7 +69,7 @@ void pwm_enable_set_frequency(uint16_t frequency) {
     _pwm_enable_start();
 }
 
-void pwm_enable_set_duty_cycle(uint8_t duty_cycle) {
+void pwm_enable_set_duty_cycle(float duty_cycle) {
     _pwm_enable_stop();
     _pwm_enable_set_duty_cycle(duty_cycle);
     _pwm_enable_start();

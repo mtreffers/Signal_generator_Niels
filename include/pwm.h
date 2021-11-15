@@ -3,6 +3,6 @@
 
 void pwm_enable_init();
 void pwm_enable_set_frequency(uint16_t frequency);
-void pwm_enable_set_duty_cycle(uint8_t duty_cycle);
+void pwm_enable_set_duty_cycle(float duty_cycle);
 
 #endif /* _PWM_H */
