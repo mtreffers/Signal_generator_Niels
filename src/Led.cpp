@@ -10,7 +10,7 @@ Led::Led(uint8_t _pin) {
 }
 
 void Led::tick() {
-    bool next_status = false;
+    bool next_status = this->status;
     unsigned long current_time = millis();
 
     switch (this->mode)
@@ -20,11 +20,13 @@ void Led::tick() {
         break;
     case BLINK_SLOW:
         if(current_time - this->previous_time > PERIOD_BLINK_SLOW) {
+            this->previous_time = current_time;
             next_status = !this->status;
         }
         break;
     case BLINK_FAST:
         if(current_time - this->previous_time > PERIOD_BLINK_FAST) {
+            this->previous_time = current_time;
             next_status = !this->status;
         }
         break;
@@ -35,10 +37,13 @@ void Led::tick() {
         next_status = false;
         break;
     }
-    digitalWrite(this->pin, next_status);
-    this->status = next_status;
+
+    if(this->status != next_status) {
+        digitalWrite(this->pin, next_status);
+        this->status = next_status;
+    }
 }
 
 void Led::set_mode(Mode _mode) {
-
+    this->mode = _mode;
 }
