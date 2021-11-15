@@ -124,10 +124,14 @@ void Encoder::tick() {
   }
   
   if(delta != 0) {
-    this->func_rotated(delta);
+      if(this->func_rotated != nullptr) {
+        this->func_rotated(delta);
+      }
   }
 
   if(back) {
-      this->func_pressed();
+      if(this->func_pressed != nullptr) {
+        this->func_pressed();
+      }
   }
 }
