@@ -44,7 +44,6 @@ Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B, PIN_ENC
 MD_AD9833 AD(PIN_AD9833_FSYNC);
 Led output_led(PIN_LED_FREQUENCY);
 Led enable_led(PIN_LED_ENABLE);
-Led debug_led(PIN_LED_DEBUG);
 
 void setup() {
   // put your setup code here, to run once:
@@ -54,7 +53,6 @@ void setup() {
   pwm_enable_init();
   AD.begin();
   AD.setMode(MD_AD9833::MODE_SQUARE1);
-  debug_led.set_mode(Led::BLINK_SLOW);
 }
 
 void loop() {
@@ -63,7 +61,6 @@ void loop() {
 
   output_led.tick();
   enable_led.tick();
-  debug_led.tick();
 }
 
 void change_enable_parameter(int8_t delta) {
