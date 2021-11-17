@@ -1,10 +1,13 @@
 #include <Arduino.h>
+#include <stdint.h>
 #include "pwm.h"
+#define ENCODER_DO_NOT_USE_INTERRUPTS
 #include "Encoder.h"
 #include "pinout.h"
 #include <MD_AD9833.h>
 #include <SPI.h>
 #include "Led.h"
+#include "Button.h"
 
 #define ENABLE_FREQUENCY_MIN 50
 #define ENABLE_FREQUENCY_MAX 10000
@@ -38,8 +41,14 @@ void change_enable_setting_mode();
 void change_output_parameter(int8_t delta);
 void change_output_setting_mode();
 
-Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B, PIN_ENCODER_ENABLE_PRESS, change_enable_parameter, change_enable_setting_mode);
-Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B, PIN_ENCODER_FREQUENCY_PRESS, change_output_parameter, change_output_setting_mode);
+Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B);//, PIN_ENCODER_ENABLE_PRESS, change_enable_parameter, change_enable_setting_mode);
+long encoder_enable_position = 0;
+Button button_enable(PIN_ENCODER_ENABLE_PRESS, change_enable_setting_mode);
+
+Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B);//, PIN_ENCODER_FREQUENCY_PRESS, change_output_parameter, change_output_setting_mode);
+long encoder_output_position = 0;
+Button button_output(PIN_ENCODER_FREQUENCY_PRESS, change_output_setting_mode);
+
 
 MD_AD9833 AD(PIN_AD9833_FSYNC);
 Led output_led(PIN_LED_FREQUENCY);
@@ -53,11 +62,29 @@ void setup() {
   pwm_enable_init();
   AD.begin();
   AD.setMode(MD_AD9833::MODE_SQUARE1);
+
+  change_enable_setting_mode();
+  change_output_setting_mode();
 }
 
 void loop() {
-  encoder_enable.tick();
-  encoder_output.tick();
+  // encoder_enable.tick();
+  // encoder_output.tick();
+  long position;
+  position = encoder_enable.read();
+  if(position != encoder_enable_position) {
+    change_enable_parameter(encoder_enable_position - position);
+    encoder_enable_position = position;
+  }
+
+  position = encoder_output.read();
+  if(position != encoder_output_position) {
+    change_output_parameter(encoder_output_position - position);
+    encoder_output_position = position;
+  }
+
+  button_enable.tick();
+  button_output.tick();
 
   output_led.tick();
   enable_led.tick();
@@ -68,19 +95,19 @@ void change_enable_parameter(int8_t delta) {
   {
   case ES_FREQUENCY_COARSE:
     enable_frequency += delta * ENABLE_FREQUENCY_INCREMENT_COARSE;
-    enable_frequency = min(ENABLE_FREQUENCY_MIN, max(ENABLE_FREQUENCY_MAX, enable_frequency));
+    enable_frequency = max(ENABLE_FREQUENCY_MIN, min(ENABLE_FREQUENCY_MAX, enable_frequency));
     break;
   case ES_FREQUENCY_FINE:
     enable_frequency += delta * ENABLE_FREQUENCY_INCREMENT_FINE;
-    enable_frequency = min(ENABLE_FREQUENCY_MIN, max(ENABLE_FREQUENCY_MAX, enable_frequency));
+    enable_frequency = max(ENABLE_FREQUENCY_MIN, min(ENABLE_FREQUENCY_MAX, enable_frequency));
     break;
   case ES_DUTY_CYCLE_COARSE:
     enable_duty_cycle += delta * ENABLE_DUTY_CYCLE_INCREMENT_COARSE;
-    enable_duty_cycle = min(ENABLE_DUTY_CYCLE_MIN, max(ENABLE_DUTY_CYCLE_MAX, enable_duty_cycle));
+    enable_duty_cycle = max(ENABLE_DUTY_CYCLE_MIN, min(ENABLE_DUTY_CYCLE_MAX, enable_duty_cycle));
     break;
   case ES_DUTY_CYCLE_FINE:
     enable_duty_cycle += delta * ENABLE_DUTY_CYCLE_INCREMENT_FINE;
-    enable_duty_cycle = min(ENABLE_DUTY_CYCLE_MIN, max(ENABLE_DUTY_CYCLE_MAX, enable_duty_cycle));
+    enable_duty_cycle = max(ENABLE_DUTY_CYCLE_MIN, min(ENABLE_DUTY_CYCLE_MAX, enable_duty_cycle));
     break;
   default:
     break;
@@ -89,7 +116,7 @@ void change_enable_parameter(int8_t delta) {
   pwm_enable_set_duty_cycle(enable_duty_cycle);
 
   Serial.print("Enable freq: ");
-  Serial.print(enable_frequency, 0);
+  Serial.print(enable_frequency);
   Serial.print(", Duty cycle: ");
   Serial.println(enable_duty_cycle, 1);
 }
@@ -124,19 +151,19 @@ void change_output_parameter(int8_t delta) {
   {
   case OUT_FREQUENCY_SMALL:
     output_frequency += delta * OUTPUT_FREQUENCY_INCREMENT_SMALL;
-    output_frequency = min(OUTPUT_FREQUENCY_MIN, max(OUTPUT_FREQUENCY_MAX, output_frequency));
+    output_frequency = max(OUTPUT_FREQUENCY_MIN, min(OUTPUT_FREQUENCY_MAX, output_frequency));
     break;
   case OUT_FREQUENCY_FINE:
     output_frequency += delta * OUTPUT_FREQUENCY_INCREMENT_FINE;
-    output_frequency = min(OUTPUT_FREQUENCY_MIN, max(OUTPUT_FREQUENCY_MAX, output_frequency));
+    output_frequency = max(OUTPUT_FREQUENCY_MIN, min(OUTPUT_FREQUENCY_MAX, output_frequency));
     break;
   case OUT_FREQUENCY_COARSE:
     output_frequency += delta * OUTPUT_FREQUENCY_INCREMENT_COARSE;
-    output_frequency = min(OUTPUT_FREQUENCY_MIN, max(OUTPUT_FREQUENCY_MAX, output_frequency));
+    output_frequency = max(OUTPUT_FREQUENCY_MIN, min(OUTPUT_FREQUENCY_MAX, output_frequency));
     break;
   case OUT_FREQUENCY_LARGE:
     output_frequency += delta * OUTPUT_FREQUENCY_INCREMENT_LARGE;
-    output_frequency = min(OUTPUT_FREQUENCY_MIN, max(OUTPUT_FREQUENCY_MAX, output_frequency));
+    output_frequency = max(OUTPUT_FREQUENCY_MIN, min(OUTPUT_FREQUENCY_MAX, output_frequency));
     break;
   default:
     break;
@@ -147,7 +174,7 @@ void change_output_parameter(int8_t delta) {
 }
 
 void change_output_setting_mode() {
-  switch (enable_setting_state)
+  switch (output_setting_state)
   {
   case OUT_FREQUENCY_SMALL:
     output_setting_state = OUT_FREQUENCY_FINE;

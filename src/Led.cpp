@@ -1,6 +1,6 @@
 #include "Led.h"
 
-#define PERIOD_BLINK_SLOW 500
+#define PERIOD_BLINK_SLOW 200
 #define PERIOD_BLINK_FAST 1000
 
 Led::Led(uint8_t _pin) {
