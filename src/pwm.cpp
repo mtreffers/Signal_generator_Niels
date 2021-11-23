@@ -9,7 +9,7 @@ uint8_t m_prescaler = 0;
 
 void _pwm_enable_set_prescaler(uint16_t frequency) {
     // Reset prescaler
-    TCCR1B &= (_BV(CS00) | _BV(CS01) |_BV(CS02));
+    TCCR1B &= ~(_BV(CS00) | _BV(CS01) |_BV(CS02));
 
     if(frequency < 245) {
         // Set prescaler 8
@@ -56,7 +56,7 @@ void pwm_enable_init() {
     _pwm_enable_reset();
 
     TCCR1A = _BV(COM1A1) | _BV(COM1B1) | _BV(WGM11) | _BV(WGM10);
-    TCCR1B = _BV(WGM12);
+    TCCR1B = _BV(WGM12) | _BV(WGM13);
     _pwm_enable_set_frequency(m_frequency);
     _pwm_enable_set_duty_cycle(m_duty_cycle);
     _pwm_enable_start();

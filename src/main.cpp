@@ -60,6 +60,8 @@ void setup() {
   Serial.println("Start...");
 
   pwm_enable_init();
+  // pinMode(PIN_ENABLE_PWM_A, OUTPUT);
+  // digitalWrite(PIN_ENABLE_PWM_A, HIGH);
   AD.begin();
   AD.setMode(MD_AD9833::MODE_SQUARE1);
 
