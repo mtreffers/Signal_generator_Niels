@@ -128,7 +128,7 @@ void change_enable_setting_mode() {
   {
   case ES_FREQUENCY_COARSE:
     enable_setting_state = ES_FREQUENCY_FINE;
-    enable_led.set_mode(Led::OFF);
+    enable_led.set_mode(Led::BLINK_SLOW);
     break;
   case ES_FREQUENCY_FINE:
     enable_setting_state = ES_DUTY_CYCLE_COARSE;
@@ -136,7 +136,7 @@ void change_enable_setting_mode() {
     break;
   case ES_DUTY_CYCLE_COARSE:
     enable_setting_state = ES_DUTY_CYCLE_FINE;
-    enable_led.set_mode(Led::BLINK_SLOW);
+    enable_led.set_mode(Led::OFF);
     break;
   case ES_DUTY_CYCLE_FINE:
     enable_setting_state = ES_FREQUENCY_COARSE;
@@ -180,7 +180,7 @@ void change_output_setting_mode() {
   {
   case OUT_FREQUENCY_SMALL:
     output_setting_state = OUT_FREQUENCY_FINE;
-    output_led.set_mode(Led::ON);
+    output_led.set_mode(Led::BLINK_SLOW);
     break;
   case OUT_FREQUENCY_FINE:
     output_setting_state = OUT_FREQUENCY_COARSE;
@@ -188,7 +188,7 @@ void change_output_setting_mode() {
     break;
   case OUT_FREQUENCY_COARSE:
     output_setting_state = OUT_FREQUENCY_LARGE;
-    output_led.set_mode(Led::BLINK_SLOW);
+    output_led.set_mode(Led::ON);
     break;
   case OUT_FREQUENCY_LARGE:
     output_setting_state = OUT_FREQUENCY_SMALL;
