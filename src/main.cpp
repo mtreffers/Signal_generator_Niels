@@ -30,10 +30,12 @@ int16_t enable_frequency = ENABLE_FREQUENCY_MIN;
 float enable_duty_cycle = ENABLE_DUTY_CYCLE_MIN;
 enum Enable_setting_states {ES_FREQUENCY_COARSE, ES_FREQUENCY_FINE, ES_DUTY_CYCLE_COARSE, ES_DUTY_CYCLE_FINE};
 Enable_setting_states enable_setting_state = ES_FREQUENCY_FINE;
+bool enable_skip_next_encoder_tick = false;
 
 float output_frequency = OUTPUT_FREQUENCY_MIN;
 enum Output_setting_states {OUT_FREQUENCY_SMALL, OUT_FREQUENCY_FINE, OUT_FREQUENCY_COARSE, OUT_FREQUENCY_LARGE};
 Output_setting_states output_setting_state = OUT_FREQUENCY_FINE;
+bool output_skip_next_encoder_tick = false;
 
 void change_enable_parameter(int8_t delta);
 void change_enable_setting_mode();
@@ -89,6 +91,16 @@ void loop() {
 }
 
 void change_enable_parameter(int8_t delta) {
+  // For a undetermined reason this function is triggered twice per encoder tick, looks like a hardware "issue/mismatch"
+  // since in both instances the correct input level is detected.
+  // This is a quick fix to only get one call per tick
+  if(enable_skip_next_encoder_tick) {
+    enable_skip_next_encoder_tick = false;
+    return;
+  } else {
+    enable_skip_next_encoder_tick = true;
+  }
+
   switch (enable_setting_state)
   {
   case ES_FREQUENCY_COARSE:
@@ -145,6 +157,16 @@ void change_enable_setting_mode() {
 
 
 void change_output_parameter(int8_t delta) {
+  // For a undetermined reason this function is triggered twice per encoder tick, looks like a hardware "issue/mismatch"
+  // since in both instances the correct input level is detected.
+  // This is a quick fix to only get one call per tick
+  if(output_skip_next_encoder_tick) {
+    output_skip_next_encoder_tick = false;
+    return;
+  } else {
+    output_skip_next_encoder_tick = true;
+  }
+
   switch (output_setting_state)
   {
   case OUT_FREQUENCY_SMALL:
