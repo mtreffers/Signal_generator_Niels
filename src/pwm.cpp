@@ -31,7 +31,8 @@ void _pwm_enable_set_frequency(uint16_t frequency) {
 
 void _pwm_enable_set_duty_cycle(float duty_cycle) {
     m_duty_cycle = duty_cycle;
-    OCR1B = ((uint16_t)(OCR1A * duty_cycle)) / 100;
+    float tmp = (OCR1A * duty_cycle) / 100;
+    OCR1B = (uint16_t)tmp;
 }
 
 void _pwm_enable_stop() {
