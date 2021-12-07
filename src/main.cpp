@@ -41,11 +41,11 @@ void change_enable_setting_mode();
 void change_output_parameter(int8_t delta);
 void change_output_setting_mode();
 
-Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B);//, PIN_ENCODER_ENABLE_PRESS, change_enable_parameter, change_enable_setting_mode);
+Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B);
 long encoder_enable_position = 0;
 Button button_enable(PIN_ENCODER_ENABLE_PRESS, change_enable_setting_mode);
 
-Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B);//, PIN_ENCODER_FREQUENCY_PRESS, change_output_parameter, change_output_setting_mode);
+Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B);
 long encoder_output_position = 0;
 Button button_output(PIN_ENCODER_FREQUENCY_PRESS, change_output_setting_mode);
 
@@ -60,8 +60,6 @@ void setup() {
   Serial.println("Start...");
 
   pwm_enable_init();
-  // pinMode(PIN_ENABLE_PWM_A, OUTPUT);
-  // digitalWrite(PIN_ENABLE_PWM_A, HIGH);
   AD.begin();
   AD.setMode(MD_AD9833::MODE_SQUARE1);
 
@@ -70,8 +68,6 @@ void setup() {
 }
 
 void loop() {
-  // encoder_enable.tick();
-  // encoder_output.tick();
   long position;
   position = encoder_enable.read();
   if(position != encoder_enable_position) {
