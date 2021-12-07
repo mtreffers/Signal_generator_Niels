@@ -9,6 +9,8 @@ Button::Button(uint8_t _pin, void (*_func_pressed)()) {
     pinMode(this->pin, INPUT_PULLUP);
 }
 
+
+// Based on: https://forum.arduino.cc/t/how-to-use-a-rotary-encoder/678250/2
 void Button::tick() {
     unsigned long current_time = millis();
     bool s = digitalRead(this->pin);
