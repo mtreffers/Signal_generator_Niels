@@ -8,6 +8,7 @@
 #include <SPI.h>
 #include "Led.h"
 #include "Button.h"
+#include <EEPROM.h>
 
 #define ENABLE_FREQUENCY_MIN 50
 #define ENABLE_FREQUENCY_MAX 15000
@@ -66,8 +67,13 @@ void setup() {
   AD.begin();
   AD.setMode(MD_AD9833::MODE_SQUARE1);
 
-  change_enable_setting_mode();
-  change_output_setting_mode();
+  pwm_enable_set_frequency(enable_frequency);
+  pwm_enable_set_duty_cycle(enable_duty_cycle);
+
+  AD.setFrequency(MD_AD9833::CHAN_0, output_frequency);
+
+  // change_enable_setting_mode();
+  // change_output_setting_mode();
 }
 
 void loop() {
