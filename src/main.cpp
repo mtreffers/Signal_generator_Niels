@@ -58,10 +58,35 @@ MD_AD9833 AD(PIN_AD9833_FSYNC);
 Led output_led(PIN_LED_FREQUENCY);
 Led enable_led(PIN_LED_ENABLE);
 
+typedef struct stored_settings{
+  int16_t enable_frequency;
+  float enable_duty_cycle;
+  float output_frequency;
+} Stored_settings;
+
+Stored_settings eeprom_settings;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   Serial.println("Start...");
+
+  Serial.println("Retrieving saved settings ...");
+  EEPROM.get(0, eeprom_settings);
+
+  if (eeprom_settings.enable_frequency >= ENABLE_FREQUENCY_MIN && eeprom_settings.enable_frequency <= ENABLE_FREQUENCY_MAX &&
+    eeprom_settings.enable_duty_cycle >= ENABLE_DUTY_CYCLE_MIN && eeprom_settings.enable_duty_cycle <= ENABLE_DUTY_CYCLE_MAX &&
+    eeprom_settings.output_frequency >= OUTPUT_FREQUENCY_MIN && eeprom_settings.output_frequency <= OUTPUT_FREQUENCY_MAX)
+  {
+    enable_frequency = eeprom_settings.enable_frequency;
+    enable_duty_cycle = eeprom_settings.enable_duty_cycle;
+    output_frequency = eeprom_settings.output_frequency;
+
+    Serial.println("Saved settings retrieved");
+  }
+  else{
+    Serial.println("No (valid) saved settings found");
+  }
 
   pwm_enable_init();
   AD.begin();
