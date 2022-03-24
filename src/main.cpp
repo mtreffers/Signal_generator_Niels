@@ -45,6 +45,8 @@ void change_enable_setting_mode();
 void change_output_parameter(int8_t delta);
 void change_output_setting_mode();
 
+void save_settings();
+
 Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B);
 long encoder_enable_position = 0;
 Button button_enable(PIN_ENCODER_ENABLE_PRESS, change_enable_setting_mode);
@@ -247,4 +249,12 @@ void change_output_setting_mode() {
   default:
     break;
   }
+}
+
+void save_settings(){
+  eeprom_settings.enable_frequency = enable_frequency;
+  eeprom_settings.enable_duty_cycle = enable_duty_cycle;
+  eeprom_settings.output_frequency =output_frequency;
+
+  EEPROM.put(0, eeprom_settings);
 }
