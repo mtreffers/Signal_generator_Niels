@@ -8,6 +8,7 @@
 #include <SPI.h>
 #include "Led.h"
 #include "Button.h"
+#include "button_state.h"
 #include <EEPROM.h>
 
 #define ENABLE_FREQUENCY_MIN 50
@@ -49,12 +50,13 @@ void save_settings();
 
 Encoder encoder_enable(PIN_ENCODER_ENABLE_A, PIN_ENCODER_ENABLE_B);
 long encoder_enable_position = 0;
-Button button_enable(PIN_ENCODER_ENABLE_PRESS, change_enable_setting_mode);
+Button button_enable(PIN_ENCODER_ENABLE_PRESS);
 
 Encoder encoder_output(PIN_ENCODER_FREQUENCY_A, PIN_ENCODER_FREQUENCY_B);
 long encoder_output_position = 0;
-Button button_output(PIN_ENCODER_FREQUENCY_PRESS, change_output_setting_mode);
+Button button_output(PIN_ENCODER_FREQUENCY_PRESS);
 
+ButtonState button_state(&button_enable, &button_output, change_enable_setting_mode, change_output_setting_mode, save_settings);
 
 MD_AD9833 AD(PIN_AD9833_FSYNC);
 Led output_led(PIN_LED_FREQUENCY);
@@ -73,21 +75,29 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Start...");
 
-  Serial.println("Retrieving saved settings ...");
-  EEPROM.get(0, eeprom_settings);
+  button_state.tick();
 
-  if (eeprom_settings.enable_frequency >= ENABLE_FREQUENCY_MIN && eeprom_settings.enable_frequency <= ENABLE_FREQUENCY_MAX &&
-    eeprom_settings.enable_duty_cycle >= ENABLE_DUTY_CYCLE_MIN && eeprom_settings.enable_duty_cycle <= ENABLE_DUTY_CYCLE_MAX &&
-    eeprom_settings.output_frequency >= OUTPUT_FREQUENCY_MIN && eeprom_settings.output_frequency <= OUTPUT_FREQUENCY_MAX)
-  {
-    enable_frequency = eeprom_settings.enable_frequency;
-    enable_duty_cycle = eeprom_settings.enable_duty_cycle;
-    output_frequency = eeprom_settings.output_frequency;
-
-    Serial.println("Saved settings retrieved");
+  if(button_state.current_state == button_state.both_pressed){
+    Serial.println("Resetting initial values ...");
+    save_settings();
   }
   else{
-    Serial.println("No (valid) saved settings found");
+    Serial.println("Retrieving saved settings ...");
+    EEPROM.get(0, eeprom_settings);
+
+    if (eeprom_settings.enable_frequency >= ENABLE_FREQUENCY_MIN && eeprom_settings.enable_frequency <= ENABLE_FREQUENCY_MAX &&
+      eeprom_settings.enable_duty_cycle >= ENABLE_DUTY_CYCLE_MIN && eeprom_settings.enable_duty_cycle <= ENABLE_DUTY_CYCLE_MAX &&
+      eeprom_settings.output_frequency >= OUTPUT_FREQUENCY_MIN && eeprom_settings.output_frequency <= OUTPUT_FREQUENCY_MAX)
+    {
+      enable_frequency = eeprom_settings.enable_frequency;
+      enable_duty_cycle = eeprom_settings.enable_duty_cycle;
+      output_frequency = eeprom_settings.output_frequency;
+
+      Serial.println("Saved settings retrieved");
+    }
+    else{
+      Serial.println("No (valid) saved settings found");
+    }
   }
 
   pwm_enable_init();
@@ -117,8 +127,7 @@ void loop() {
     encoder_output_position = position;
   }
 
-  button_enable.tick();
-  button_output.tick();
+  button_state.tick();
 
   output_led.tick();
   enable_led.tick();
@@ -254,7 +263,7 @@ void change_output_setting_mode() {
 void save_settings(){
   eeprom_settings.enable_frequency = enable_frequency;
   eeprom_settings.enable_duty_cycle = enable_duty_cycle;
-  eeprom_settings.output_frequency =output_frequency;
+  eeprom_settings.output_frequency = output_frequency;
 
   EEPROM.put(0, eeprom_settings);
 }
