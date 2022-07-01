@@ -9,7 +9,7 @@ class Button {
         Button(uint8_t _pin);
         void tick();
         
-        bool last_state = false;
+        bool last_state = true;
         
     private:
         uint8_t pin;

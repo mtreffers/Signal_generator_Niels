@@ -16,13 +16,13 @@ void ButtonState::tick(){
 
     switch(this->current_state){
         case released:
-            if(button1->last_state == true && button2->last_state == true){
+            if(button1->last_state == false && button2->last_state == false){
                 this->next_state = both_pressed;
             }
-            else if(button1->last_state == true){
+            else if(button1->last_state == false){
                 this->next_state = b1_pressed;
             }
-            else if(button2->last_state == true){
+            else if(button2->last_state == false){
                 this->next_state = b2_pressed;
             }
             else{
@@ -30,11 +30,11 @@ void ButtonState::tick(){
             }
             break;
         case b1_pressed:
-            if(button1->last_state == false){
+            if(button1->last_state == true){
                 this->button1_func();
                 this->next_state = released;
             }
-            else if(button2->last_state == true){
+            else if(button2->last_state == false){
                 this->next_state = both_pressed;
             }
             else{
@@ -42,11 +42,11 @@ void ButtonState::tick(){
             }
             break;
         case b2_pressed:
-            if(button2->last_state == false){
+            if(button2->last_state == true){
                 this->button2_func();
                 this->next_state = released;
             }
-            else if(button1->last_state == true){
+            else if(button1->last_state == false){
                 this->next_state = both_pressed;
             }
             else{
@@ -54,7 +54,7 @@ void ButtonState::tick(){
             }
             break;
         case both_pressed:
-            if(button1->last_state == false && button2->last_state == false){
+            if(button1->last_state == true && button2->last_state == true){
                 this->double_press_func();
                 this->next_state = released;
             }

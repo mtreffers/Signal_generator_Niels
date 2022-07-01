@@ -75,9 +75,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Start...");
 
-  button_state.tick();
-
-  if(button_state.current_state == button_state.both_pressed){
+  if(digitalRead(PIN_ENCODER_ENABLE_PRESS) == false && digitalRead(PIN_ENCODER_FREQUENCY_PRESS) == false){
     Serial.println("Resetting initial values ...");
     save_settings();
   }
@@ -103,14 +101,15 @@ void setup() {
   pwm_enable_init();
   AD.begin();
   AD.setMode(MD_AD9833::MODE_SQUARE1);
+  
+  change_enable_setting_mode();
+  change_output_setting_mode();
 
   pwm_enable_set_frequency(enable_frequency);
   pwm_enable_set_duty_cycle(enable_duty_cycle);
 
   AD.setFrequency(MD_AD9833::CHAN_0, output_frequency);
 
-  // change_enable_setting_mode();
-  // change_output_setting_mode();
 }
 
 void loop() {
@@ -261,6 +260,7 @@ void change_output_setting_mode() {
 }
 
 void save_settings(){
+  Serial.println("save settings");
   eeprom_settings.enable_frequency = enable_frequency;
   eeprom_settings.enable_duty_cycle = enable_duty_cycle;
   eeprom_settings.output_frequency = output_frequency;
