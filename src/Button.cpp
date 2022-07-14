@@ -2,9 +2,8 @@
 
 #define BOUNCE_TIME 30
 
-Button::Button(uint8_t _pin, void (*_func_pressed)()) {
+Button::Button(uint8_t _pin) {
     this->pin = _pin;
-    this->func_pressed = _func_pressed;
 
     pinMode(this->pin, INPUT_PULLUP);
 }
@@ -14,15 +13,12 @@ Button::Button(uint8_t _pin, void (*_func_pressed)()) {
 void Button::tick() {
     unsigned long current_time = millis();
     bool s = digitalRead(this->pin);
+    // Serial.print("button HIGH/LOW: ");
+    // Serial.println(s);
     if (current_time - this->last_pressed >= BOUNCE_TIME) {
         if (this->last_state != s) {
             this->last_pressed = current_time;
             this->last_state = s;
-            if(!s) {
-                if(this->func_pressed != nullptr) {
-                    this->func_pressed();
-                }
-            }
         }
   }
 }

@@ -6,16 +6,15 @@
 
 class Button {
     public:
-        Button(uint8_t _pin, void (*_func_pressed)());
+        Button(uint8_t _pin);
         void tick();
-
+        
+        bool last_state = true;
+        
     private:
         uint8_t pin;
-        void (*func_pressed)();
 
         unsigned long last_pressed = 0;
-        bool last_state = false;
-
 };
 
 #endif /* _BUTTON_H */
